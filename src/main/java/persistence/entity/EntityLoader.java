@@ -1,25 +1,24 @@
 package persistence.entity;
 
-import jakarta.persistence.Column;
 import jdbc.RowMapper;
+import persistence.EntityMeta;
 
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class EntityLoader<T> implements RowMapper<T> {
     private final Class<T> targetType;
-    private final Map<String, String> columnMap;
+    private final EntityMeta entityMeta;
 
     public EntityLoader(Class<T> targetType) {
         this.targetType = targetType;
-        this.columnMap = Arrays.stream(targetType.getDeclaredFields())
-                .collect(Collectors.toMap(this::columnName, Field::getName));
+        this.entityMeta = initEntityMeta(targetType);
+    }
 
+    private EntityMeta initEntityMeta(Class<T> targetType) {
+        return EntityMeta.of(targetType);
     }
 
     @Override
@@ -33,7 +32,7 @@ public class EntityLoader<T> implements RowMapper<T> {
             for (int i = 0; i < columnCount; i++) {
                 String alias = meta.getColumnLabel(i + 1);
                 String name = meta.getColumnName(i + 1);
-                Field field = targetType.getDeclaredField(columnMap.get(alias.toLowerCase()));
+                Field field = targetType.getDeclaredField(entityMeta.column(alias));
                 field.setAccessible(true);
 
                 Object value = resultSet.getObject(name);
@@ -45,17 +44,4 @@ public class EntityLoader<T> implements RowMapper<T> {
         return targetObject;
     }
 
-    private String columnName(Field field) {
-        Column columnAnnotation = field.getAnnotation(Column.class);
-
-        if (columnAnnotation == null) {
-            return field.getName();
-        }
-
-        if (columnAnnotation.name().equals("")) {
-            return field.getName();
-        }
-
-        return columnAnnotation.name();
-    }
 }
