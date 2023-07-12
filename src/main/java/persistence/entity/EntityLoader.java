@@ -11,10 +11,16 @@ import java.sql.SQLException;
 public class EntityLoader<T> implements RowMapper<T> {
     private final Class<T> targetType;
     private final EntityMeta entityMeta;
+    private final CustomJoinTable joinTable;
 
     public EntityLoader(Class<T> targetType) {
         this.targetType = targetType;
         this.entityMeta = initEntityMeta(targetType);
+        this.joinTable = initJoinTable(targetType);
+    }
+
+    private CustomJoinTable initJoinTable(Class<T> targetType) {
+        return CustomJoinTable.of(targetType);
     }
 
     private EntityMeta initEntityMeta(Class<T> targetType) {
@@ -44,4 +50,11 @@ public class EntityLoader<T> implements RowMapper<T> {
         return targetObject;
     }
 
+    public boolean hasJoin() {
+        return this.joinTable.hasJoin();
+    }
+
+    public CustomJoinTable customJoinTable() {
+        return joinTable;
+    }
 }

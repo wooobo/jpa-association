@@ -23,10 +23,19 @@ public class QueryBuilder {
     }
 
     protected <T> Object findById(Class<T> clazz, Long key) {
-        String sql = selectQueryBuilder.findById(clazz.getSimpleName(), unique(clazz.getDeclaredFields()).getName(), String.valueOf(key));
-        EntityLoader<T> mapper = new EntityLoader<>(clazz);
+        EntityLoader<T> entityLoader = new EntityLoader<>(clazz);
+        if (!entityLoader.hasJoin()) {
+            // join이 아닐때,
+            String sql = selectQueryBuilder.findById(clazz.getSimpleName(), unique(clazz.getDeclaredFields()).getName(), String.valueOf(key));
+            return jdbcTemplate.queryForObject(sql, entityLoader);
+        }
 
-        return jdbcTemplate.queryForObject(sql, mapper);
+        // join 일때
+        String sql = selectQueryBuilder.find(clazz.getSimpleName());
+        String sqlJoin = selectQueryBuilder.appendJoin(sql, entityLoader.customJoinTable());
+        String finalSql = selectQueryBuilder.appendWhere(sqlJoin, unique(clazz.getDeclaredFields()).getName(), String.valueOf(key));
+
+        return jdbcTemplate.queryForObject(finalSql, entityLoader);
     }
 
     protected <T> void delete(Class<T> clazz, Long key) {

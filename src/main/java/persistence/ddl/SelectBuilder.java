@@ -14,10 +14,14 @@ public class SelectBuilder {
     }
 
     public String findAllQuery() {
-        return String.format("SELECT * FROM %s", table.expression());
+        return baseSelectQuery();
     }
 
     public String findById(long id) {
         return String.format("SELECT * FROM %s WHERE %s=%s", table.expression(), columns.primaryKey(), id);
+    }
+
+    private String baseSelectQuery() {
+        return String.format("SELECT * FROM %s", table.expression());
     }
 }
