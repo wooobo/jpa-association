@@ -1,8 +1,6 @@
 package persistence.sql.ddl;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Id;
-import jakarta.persistence.Transient;
+import jakarta.persistence.*;
 import persistence.dialect.DdlType;
 import persistence.dialect.Dialect;
 import persistence.dialect.TypeJavaClassMappings;
@@ -22,7 +20,7 @@ public abstract class CreateDdlBuilder {
         return new StringBuilder()
                 .append(dialect.getCreateTableString())
                 .append(" ")
-                .append(clazz.getSimpleName().toLowerCase())
+                .append(tableName(clazz))
                 .append(" (")
                 .append(idColumn(clazz.getDeclaredFields()))
                 .append(columns(clazz.getDeclaredFields()))
@@ -30,6 +28,14 @@ public abstract class CreateDdlBuilder {
                 .append(primaryKey(clazz.getDeclaredFields()))
                 .append(")")
                 .toString();
+    }
+
+    private String tableName(Class<?> clazz) {
+        Table table = clazz.getAnnotation(Table.class);
+        if (table == null) {
+            return clazz.getSimpleName().toLowerCase();
+        }
+        return table.name();
     }
 
     private String primaryKey(Field[] fields) {
@@ -50,7 +56,7 @@ public abstract class CreateDdlBuilder {
 
     private String columns(Field[] fields) {
         return Arrays.stream(fields)
-                .filter(field -> this.notTransient(field) && this.notUnique(field))
+                .filter(field -> this.notTransient(field) && this.notUnique(field) && this.notJoin(field))
                 .map(field -> this.columnBuild(field) + this.columnNotNullBuild(field))
                 .collect(Collectors.joining(", "));
     }
@@ -109,4 +115,12 @@ public abstract class CreateDdlBuilder {
 
         return annotation == null;
     }
+
+
+    private boolean notJoin(Field field) {
+        JoinColumn annotation = field.getAnnotation(JoinColumn.class);
+
+        return annotation == null;
+    }
+
 }

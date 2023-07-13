@@ -12,9 +12,15 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "order_number")
     private String orderNumber;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id")
     private List<OrderItem> orderItems;
+
+    public Order(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
 }
