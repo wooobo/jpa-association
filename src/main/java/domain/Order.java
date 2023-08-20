@@ -23,6 +23,10 @@ public class Order {
         this(null, orderNumber, null);
     }
 
+    public Order(Long id, String orderNumber) {
+        this(id, orderNumber, null);
+    }
+
     public Order(Long id, String orderNumber, List<OrderItem> orderItems) {
         this.id = id;
         this.orderNumber = orderNumber;
@@ -34,5 +38,9 @@ public class Order {
 
     public int orderItemCount() {
         return orderItems.size();
+    }
+
+    public String getName() {
+        return orderNumber;
     }
 }

@@ -21,6 +21,7 @@ public class JoinEntityLoader {
         List<Object> items = null;
         Field joinField = null;
         for (Field field : fields) {
+            // @Lazy 선언 아니면 스킵?
             if (field.isAnnotationPresent(OneToMany.class)) {
                 Class<?> fieldType = field.getType();
                 if (List.class.isAssignableFrom(fieldType)) {

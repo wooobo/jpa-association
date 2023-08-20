@@ -20,8 +20,7 @@ public class EntityLoader<T> implements RowMapper<T> {
 
     public EntityLoader(Class<T> targetType) {
         this.targetType = targetType;
-        this.columnMap = Arrays.stream(targetType.getDeclaredFields())
-                .collect(Collectors.toMap(this::columnName, Field::getName));
+        this.columnMap = Arrays.stream(targetType.getDeclaredFields()).collect(Collectors.toMap(this::columnName, Field::getName));
     }
 
     @Override
@@ -47,6 +46,7 @@ public class EntityLoader<T> implements RowMapper<T> {
                 }
             }
 
+            // @Todo 여기는 쿼리 결과가 나오는거니까... join이 되는 경우는 어떻게 처리해야할까?
             JoinEntityLoader joinEntityLoader = new JoinEntityLoader(targetType.getDeclaredFields());
             Field joinField = joinEntityLoader.mapJoinFields(resultSet);
 

@@ -20,4 +20,11 @@ public abstract class SelectQueryBuilder {
                 .append(String.format(" where %s=%s", entityMeta.uniqueColumn(entityMeta.tableName()), id))
                 .toString();
     }
+
+    public String findAllChildBy(EntityMeta entityMeta, Object id) {
+        return new StringBuilder()
+                .append(String.format("select * from %s", entityMeta.joinTableName()))
+                .append(String.format(" where %s=%s", entityMeta.joinJoinColumn(), id))
+                .toString();
+    }
 }

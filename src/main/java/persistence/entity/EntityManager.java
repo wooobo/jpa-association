@@ -1,7 +1,11 @@
 package persistence.entity;
 
+import java.util.List;
+
 public interface EntityManager {
     <T> T find(Class<T> clazz, Long key);
+
+//    <T> List<T> findAllBy(Class<T> clazz, String fieldName, Object value);
 
     void persist(Object entity) throws IllegalAccessException;
 

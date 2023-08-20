@@ -1,6 +1,8 @@
 package persistence.entity;
 
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import persistence.CustomTable;
 import persistence.JoinTable;
@@ -49,6 +51,10 @@ public class CustomJoinTable {
             return null;
         }
 
+        if (isLazyJoinField(joinField.get())) {
+            return null;
+        }
+
         ParameterizedType genericType = (ParameterizedType) joinField.get().getGenericType();
 
         Class<?> fieldClass = (Class<?>) genericType.getActualTypeArguments()[0];
@@ -59,6 +65,11 @@ public class CustomJoinTable {
         return Arrays.stream(clazz.getDeclaredFields())
                 .filter(it -> it.isAnnotationPresent(JoinColumn.class))
                 .findFirst();
+    }
+
+    private static boolean isLazyJoinField(Field field) {
+        OneToMany oneToMany = field.getAnnotation(OneToMany.class);
+        return oneToMany.fetch().equals(FetchType.LAZY);
     }
 
     public String joinTable() {

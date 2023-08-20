@@ -1,6 +1,7 @@
 package persistence.entity;
 
 import domain.Order;
+import domain.OrderItem;
 import domain.Person;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import persistence.sql.ddl.h2.H2SelectQueryBuilder;
 import persistence.sql.ddl.h2.H2UpdateQueryBuilder;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +47,13 @@ class EntityManagerImplTest extends DatabaseTest {
                 () -> assertNotNull(actual),
                 () -> assertEquals(actual.orderItemCount(), 2)
         );
+    }
+
+    @Test
+    void find_order_items() {
+        insertDb();
+        EntityManager entityManager = new EntityManagerImpl(queryBuilder);
+
     }
 
     @Test

@@ -6,6 +6,7 @@ import persistence.EntityMeta;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 
 import static persistence.entity.PersistenceContext.NO_ROW;
 
@@ -33,14 +34,15 @@ public class EntityManagerImpl implements EntityManager {
             return clazz.cast(persistenceContext.getEntity(entityKey));
         }
 
-        Object object = extracted(clazz, key);
+        Object object = findEntity(clazz, key);
 
         persistenceContext.addEntity(entityKey, object);
 
         return clazz.cast(persistenceContext.getEntity(entityKey));
     }
 
-    private <T> Object extracted(Class<T> clazz, Long key) {
+
+    private <T> Object findEntity(Class<T> clazz, Long key) {
         if(EntityMeta.hasJoin(clazz)) {
             return queryBuilder.findByIdJoin(clazz, key);
         }

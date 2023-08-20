@@ -8,6 +8,7 @@ import persistence.sql.ddl.*;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.List;
 
 public class QueryBuilder {
     private final SelectQueryBuilder selectQueryBuilder;
@@ -31,6 +32,7 @@ public class QueryBuilder {
         return jdbcTemplate.queryForObject(sql, mapper);
     }
 
+    // @Todo 여기서 proxy 객체를 만들어서 반환해야 한다?
     public <T> Object findByIdJoin(Class<T> clazz, Long key) {
         EntityMeta entityMeta = EntityMeta.ofJoin(clazz);
         String sql = selectQueryBuilder.findByIdByJoin(entityMeta, String.valueOf(key));
@@ -58,4 +60,19 @@ public class QueryBuilder {
                 .orElseThrow(RuntimeException::new);
     }
 
+    public <T> List<T> findAllBy(Object parentClazz, Field joinField) {
+        Field uniqueField = unique(parentClazz.getClass().getFields());
+        EntityMeta entityMeta = EntityMeta.ofJoin(joinField.getType());
+        String sql = null;
+        try {
+            sql = selectQueryBuilder.findAllChildBy(entityMeta, uniqueField.get(parentClazz).toString());
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        EntityLoader<?> mapper = new EntityLoader<>(joinField.getType());
+
+        jdbcTemplate.query(sql, mapper);
+
+        return null;
+    }
 }
